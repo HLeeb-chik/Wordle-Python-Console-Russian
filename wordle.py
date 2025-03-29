@@ -42,16 +42,82 @@ hidden_word = []
 word = ""
 
 
-def randomWord():
+def randomWord(mode):
+
     with open(word5_file_path, "r", encoding="utf-8") as file:
         lines = file.readlines()
     file.close()
-    num_word = random.randint(1, len(lines))
+    if mode == 0:
+        num_word = random.randint(1, len(lines))
+    elif mode == 1:
+        num_word = -1
     return list(lines[num_word].upper()), num_word
 
 
-def Game():
-    hidden_word, num_word = randomWord()
+def addWord():
+    word_is_true = False
+    print("Введите слово: ")
+    while not word_is_true:
+        word_to_add = input(Fore.BLUE).upper()
+        if russianWord(word_to_add) and len(word_to_add) == 5:
+            word_is_true = True
+        else:
+            print(Style.DIM+Fore.RED, end="")
+            for _ in "Введите слово из 5 букв русского алфавита!\n":
+                print(_, end="", flush=True)
+                time.sleep(0.03)
+                print(Style.RESET_ALL, end="")
+
+    else:
+        with open(word5_file_path, "r", encoding="utf-8") as file:
+            lines = file.readlines()
+
+        if lines:
+            lines[-1] = word_to_add.lower()
+
+        with open(word5_file_path, "w", encoding="utf-8") as file:
+            file.writelines(lines)
+
+
+def chooseLevevl():
+    print("\nВыбор режима:")
+    print(Style.BRIGHT+Fore.LIGHTMAGENTA_EX)
+    for _ in " обычный режим -> 0":
+        print(_, end="", flush=True)
+        time.sleep(0.04)
+    print(Style.BRIGHT+Fore.LIGHTCYAN_EX)
+    for _ in " режим загадывания слова -> 1":
+        print(_, end="", flush=True)
+        time.sleep(0.04)
+    print(Style.BRIGHT+Fore.LIGHTRED_EX)
+    for _ in " выйти -> Ctrl+C\n":
+        print(_, end="", flush=True)
+        time.sleep(0.04)
+    print(Style.RESET_ALL)
+
+    if (m := input("Режим: ")) == "0":
+        Game(0)
+    elif m == "1":
+
+        addWord()
+
+        Game(1)
+
+    # Enter Game
+
+
+def Game(mode):
+    if mode == 0:
+        hidden_word, num_word = randomWord(0)
+    elif mode == 1:
+        hidden_word, num_word = randomWord(1)
+    else:
+        raise UnboundLocalError(
+            "ЭЭЭЭЭММММ как-то страно, но всё сломалось.... перезапусти пж -_-")
+
+    clear_screen()
+    move_cursor(0, 0)
+
     print(Style.BRIGHT+Fore.CYAN+"Слово загадано, У тебя 6 попыток")
     print("Введите слова: " + Style.RESET_ALL)
     used_leters = {_.upper(): 0 for _ in alphabet}
@@ -77,9 +143,9 @@ def Game():
                 print(Style.RESET_ALL+" "*50)
                 move_cursor(posX, posY)
 
-        word = list(word)
+        word = list(word.replace("\n", ""))
         move_cursor(posX, posY)
-        if word+["\n"] == hidden_word:
+        if word == hidden_word:
             for h in word:
                 print(Style.BRIGHT + Back.GREEN +
                       h + Style.RESET_ALL, end=" ", flush=True)
@@ -139,6 +205,8 @@ def Game():
         print(Fore.YELLOW+Back.BLACK +
               f"Загаданое слово - {"".join(hidden_word)}"+Fore.BLACK+f"index={num_word+1}" + Style.RESET_ALL)
 
+    contin(mode)
+
 
 def main():
 
@@ -175,23 +243,24 @@ def main():
           " " + "- Буквы нет в загаданом слове", "Удачи!",
           sep="\n")
 
-    for _ in "Enter начать...":
-        print(_, end="", flush=True)
-        time.sleep(0.04)
-    input()
-    clear_screen()
-    move_cursor(0, 0)
-    Game()  # Enter Game
-    while input('Enter -> продолжить;\nЛюбая клавиша-> выйти:\n') == "":  # relode
-        clear_screen()
-
-        Game()
+    chooseLevevl()
 
 
-# print(Fore.GREEN + 'зеленый текст')
-# print(Back.YELLOW + 'на желтом фоне')
-# print(Style.BRIGHT + 'стал ярче' + Style.RESET_ALL)
-# print('обычный текст')
+def contin(mode):  # relode
+    if mode == 0:
+
+        if (m := input('Enter -> продолжить;\nmenu + Enter-> выбор режима:\n')) == "":
+            Game(mode)
+        elif m == "menu":
+            chooseLevevl()
+    elif mode == 1:
+        if (m := input('Enter -> продолжить;\nmenu + Enter-> выбор режима:\n')) == "":
+            addWord()
+            Game(mode)
+        elif m == "menu":
+            chooseLevevl()
+
+
 if __name__ == "__main__":
     main()
 print(num_word, hidden_word, word)
