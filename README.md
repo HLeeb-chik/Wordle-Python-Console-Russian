@@ -1,2 +1,2 @@
-# Wordle Python Console Russian
- Весёлая игра где надо отгадать случайное русское слово из 5 букв
+# Wordle Python Console 
+A fun game where you have to randomly guess a 5-letter Russian word.
